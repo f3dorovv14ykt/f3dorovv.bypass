@@ -48,5 +48,5 @@ GLGLGL
 
 - 55prosek-lgtm [Нет ТГ] (vpn_config_for_russia)
 
-
+- hidashimora (Hidashimora/free-vpn-anti-rkn)
 :PPP
