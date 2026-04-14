@@ -1,14 +1,30 @@
-- name: autoupdate
-  run: |
-    # Скрипт для получения данных, например:
-    curl -o data.txt https://f3dorovv14ykt.github.io/
-- name: Check for changes
-  run: |
-    git config --global user.name "auto updater"
-    git config --global user.email "auto-updater@example.com"
-    git add data.txt
-    git diff --cached --quiet || git commit -m "Update data from site"
-- name: Push changes
-  if: github.repository_owner == github.actor
-  run: |
-    git push
+name: autoupdate
+on:
+  schedule:
+    - cron: '0 */8 * * *'  # запуск каждые 8 часов
+  push: {}  # также запуск при пуше, если нужно
+
+jobs:
+  autoupdate:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: docker://chinthakagodawita/autoupdate-action:v1
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
+      # ваш последующий код обновления, скачивания, коммита
+      - name: Скачать данные с сайта
+        run: |
+          curl -o data.txt https://f3dorovv14ykt.github.io/
+
+      - name: Проверить и закоммитить изменения
+        run: |
+          git config --global user.name "Auto Updater"
+          git config --global user.email "auto-updater@example.com"
+          git add data.txt
+          git diff --cached --quiet || git commit -m "Автообновление данных"
+
+      - name: Пушить изменения
+        if: github.repository_owner == github.actor
+        run: |
+          git push
