@@ -1,4 +1,4 @@
-# f3dorovv.ALPHARELISE.allRussiaAutoUpdate
+# f3dorovv.bypass (TestingNetwork)
 ALPHARELISE.allRussiaAutoUpdate = CONFIGS
 
 https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.DefaultVPN <--- Обычный Впн
