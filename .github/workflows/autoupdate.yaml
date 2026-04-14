@@ -15,7 +15,7 @@ jobs:
       # ваш последующий код обновления, скачивания, коммита
       - name: Скачать данные с сайта
         run: |
-          curl -o data.txt https://f3dorovv14ykt.github.io/
+          curl -o data.txt https://raw.githubusercontent.com/igareck/vpn-configs-for-russia/refs/heads/main/Vless-Reality-White-Lists-Rus-Mobile.txt
 
       - name: Проверить и закоммитить изменения
         run: |
