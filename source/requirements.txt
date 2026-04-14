@@ -1,0 +1,12 @@
+curl_cffi>=0.15.0b3  # Fast HTTP client (2-3x faster than requests, 0.14.0 has SOCKS5 regression)
+requests[socks]  # Fallback for compatibility
+PyGithub
+tzdata
+urllib3
+PyYAML
+pytdbot[tdjson]>=0.8.8
+PySocks>=1.7.1
+
+# Optional dependencies for enhanced verification performance
+aiodns>=3.0.0
+dnspython>=2.3.0
