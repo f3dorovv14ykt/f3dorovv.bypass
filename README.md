@@ -6,8 +6,8 @@ https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAu
 
 
 
-
-
+https://f3dorovv14ykt.github.io/ <---------- Подбор конфигов
+ 
 
 
 
@@ -26,6 +26,9 @@ GLGLGL
 
 
 !!! БЛАГАДАРЮ ЗА ОПЕНСУРСЫ !!! ВСЕ КОНФИГИ БЫЛИ ОТЫЗЕНЫ НА ГИТХАБЕ И ВСТАВЛЕНЫ В ОБЩУЮ ПОДПИСКУ !!!
+
+- RYZz/RYZgames31 [@ultimatewbypass] (wcfg) <---- Особенный КРАСАВЧИК +rep
+
 - AvenCores [@avencoresyt] (goida-vpn-configs)
 
 - roosterkid [Нет ТГ] (openproxylist)
