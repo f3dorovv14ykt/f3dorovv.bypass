@@ -204,3 +204,5 @@ if __name__ == "__main__":
         proxy_url=args.proxy_url,
         proxy_chain=args.proxy_chain
     )
+def _cleanup_proxy():
+    pass
