@@ -1,5 +1,15 @@
-# f3dorovv.bypass (TestingNetwork)
+# f3dorovv.bypass- Автоматически обновляемые VPN-конфиги
+
 ALPHARELISE.allRussiaAutoUpdate = CONFIGS
+
+_____________________________________
+Автоматически обновляемая коллекция публичных VPN-конфигов (`V2Ray` / `VLESS` / `Trojan` / `VMess` / `Reality` / `Shadowsocks` / `Hysteria2` / `TUIC`) для быстрого обхода блокировок. Обход белых списков на мобильном интернете.
+
+Каждый конфиг — это TXT-подписка, которую можно импортировать практически в любой современный клиент (`v2rayNG`, `NekoRay`, `Throne`, `v2rayN`, `V2Box`, `v2RayTun`, `Hiddify` и др.).
+
+Конфиги обновляются **раз в 2 дня** с помощью GitHub Actions, поэтому все ссылки всегда актуальны.
+
+
 
 - **[defaultf3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.DefaultVPN)** <--- Обычный Впн
 - **[Mobilef3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.Mobile)** <--- Обход Белых Списков
@@ -25,47 +35,63 @@ ALPHARELISE.allRussiaAutoUpdate = CONFIGS
 GLGLGL
 
 
-!!! БЛАГАДАРЮ ЗА ОПЕНСУРСЫ !!! ВСЕ КОНФИГИ БЫЛИ ОТЫЗЕНЫ НА ГИТХАБЕ И ВСТАВЛЕНЫ В ОБЩУЮ ПОДПИСКУ !!!
 
-- RYZz/RYZgames31 [@ultimatewbypass] (wcfg) <---- Особенный КРАСАВЧИК +rep
+ **OpenSource** ThxAll
+**RYZz/RYZgames31 [@ultimatewbypass] (wcfg) <---- Особенный КРАСАВЧИК +rep**
 
-- AvenCores [@avencoresyt] (goida-vpn-configs)
+**AvenCores [@avencoresyt] (goida-vpn-configs)**
 
-- roosterkid [Нет ТГ] (openproxylist)
+**roosterkid [Нет ТГ] (openproxylist)**
 
-- zieng2 [Нет ТГ] (wl/vless)
+**zieng2 [Нет ТГ] (wl/vless)**
 
-- igareck [Нет ТГ] (vpn-configs-for-russia)
+**igareck [Нет ТГ] (vpn-configs-for-russia)**
 
-- LowiKLive [@LowiK_Live] (BypassWhitelistRu)
+**LowiKLive [@LowiK_Live] (BypassWhitelistRu)**
 
-- zieng2 [Нет ТГ] (wl/vless-universal)
+**zieng2 [Нет ТГ] (wl/vless-universal)**
 
-- vsevjik [@vsevj_134] (OBSpiskov)
+**vsevjik [@vsevj_134] (OBSpiskov)**
 
-- @ByeWhiteLists (VK-cloud-love)
+**@ByeWhiteLists (VK-cloud-love)**
 
-- EtoNeYa [@YoutubeUnBlockRu] (EtoNeYa)
+**EtoNeYa [@YoutubeUnBlockRu] (EtoNeYa)**
 
-- whoahaow [Нет ТГ] (bypass-unsecure)
+**whoahaow [Нет ТГ] (bypass-unsecure)**
 
-- ? [Нет ТГ] (bypass-all)
+**? [Нет ТГ] (bypass-all)**
 
-- WL RUS [@wlrustg] (merged)
+**WL RUS [@wlrustg] (merged)**
 
-- CatlerGames [@catlergememe] (CaTWhiteVPN)
+**CatlerGames [@catlergememe] (CaTWhiteVPN)**
 
-- DarkFirexs [Нет ТГ] (Whitelist VPN)
+**DarkFirexs [Нет ТГ] (Whitelist VPN)**
 
-- ShatakVPN [Нет ТГ] (ConfigForge-V2Ray)
+**ShatakVPN [Нет ТГ] (ConfigForge-V2Ray)**
 
-- FLEXIY0 [Нет ТГ] (matryoshka-vpn)
+**FLEXIY0 [Нет ТГ] (matryoshka-vpn)**
 
-- GoodbyeWL [@GoodbyeWL] (GoodbyeWL)
+**GoodbyeWL [@GoodbyeWL] (GoodbyeWL)**
 
-- vlesscollector [Нет ТГ] (vlesscollector)
+**vlesscollector [Нет ТГ] (vlesscollector)**
 
-- 55prosek-lgtm [Нет ТГ] (vpn_config_for_russia)
+**55prosek-lgtm [Нет ТГ] (vpn_config_for_russia)**
 
-- hidashimora (Hidashimora/free-vpn-anti-rkn)
+**hidashimora (Hidashimora/free-vpn-anti-rkn)**
 :PPP
+
+ ### Источники и вдохновение
+
+Основной репозиторий, который вдохновил данный проект: https://github.com/whoahaow/rjsxrd/                                                                                                       
+
+### ДИСКЛЕЙМЕР
+
+> *Автор не является владельцем/разработчиком/поставщиком перечисленных VPN-конфигураций. Это независимый информационный обзор и результаты тестирования.*
+>
+> *Данный пост не является рекламой VPN. Материал предназначен исключительно в информационных целях, и только для граждан тех стран, где эта информация легальна, как минимум - в научных целях.*
+> *Автор не имеет никаких намерений, не побуждает, не поощряет и не оправдывает использование VPN ни при каких обстоятельствах.*
+> *Ответственность за любое применение данных VPN-конфигураций — на их пользователе.*
+> *Отказ от ответственности: автор не несёт ответственность за действия третьих лиц и не поощряет противоправное использование VPN.*
+> *Используйте в соответствии с местным законодательством.*
+>
+> *Используйте VPN только в законных целях: в частности - для обеспечения вашей безопасности в сети и защищённого удалённого доступа, и ни в коем случае не применяйте данную технологию для обхода блокировок.*
