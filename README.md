@@ -11,7 +11,7 @@ https://f3dorovv14ykt.github.io/ <---------- Подбор конфигов
 
 
 
-
+https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2312.txt <--- Рекомендованный (Universal/Wifi/Mobile)
 
 
 
