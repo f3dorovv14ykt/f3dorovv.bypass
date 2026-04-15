@@ -1,20 +1,20 @@
 # f3dorovv.bypass (TestingNetwork)
 ALPHARELISE.allRussiaAutoUpdate = CONFIGS
 
-https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.DefaultVPN <--- Обычный Впн
-https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.Mobile <--- Обход Белых Списков
+- **[defaultf3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.DefaultVPN)** <--- Обычный Впн
+- **[Mobilef3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.Mobile)** <--- Обход Белых Списков
 
 
 
-https://f3dorovv14ykt.github.io/ <---------- Подбор конфигов
+- **[Подбор Конфигов](https://f3dorovv14ykt.github.io/)** 
  
-
-
-
-https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2312.txt <--- Рекомендованный (Universal/Wifi/Mobile)
-
-
-
+                        Рекомендованные:
+- **[12](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2312.txt)**
+- **[13](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2313.txt)**
+- **[38](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2338.txt)**
+- **[21](https://github.com/f3dorovv14ykt/f3dorovv.bypass/raw/refs/heads/main/configs/f3dorovv.%2321.txt)**
+- **[24](https://github.com/f3dorovv14ykt/f3dorovv.bypass/raw/refs/heads/main/configs/f3dorovv.%2324.txt)**
+- **[25](https://github.com/f3dorovv14ykt/f3dorovv.bypass/raw/refs/heads/main/configs/f3dorovv.%2325.txt)**
 
 
 
