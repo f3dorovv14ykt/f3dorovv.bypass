@@ -14,55 +14,60 @@ jobs:
         
       - name: Download and merge configs
         run: |
-          # 1. Очистка старых данных
-          rm -f configs*.txt vpn_part_* temp_all.txt clean_all.txt
+          # 1. Создаем папки и чистим старье
+          mkdir -p configs data
+          rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt
+          rm -f f3dorovv*.txt # Удаляем старые файлы из корня
+
           touch temp_all.txt
 
-          # 2. Загрузка из sources.txt
-          if [ -f sources.txt ]; then
-            sed -i 's/\r//g' sources.txt
+          # 2. Путь к спрятанному файлу
+          SOURCE_FILE="data/sources.txt" 
+          
+          if [ -f "$SOURCE_FILE" ]; then
+            sed -i 's/\r//g' "$SOURCE_FILE"
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
               if [[ "$url" == http* ]]; then
                 echo "Загружаю: $url"
                 curl -sL -k -f --connect-timeout 10 "$url" >> temp_all.txt || echo "Пропуск"
               fi
-            done < sources.txt
+            done < "$SOURCE_FILE"
+          else
+            echo "ОШИБКА: Файл $SOURCE_FILE не найден! Убедись, что он в папке data."
+            exit 1
           fi
 
           # 3. Обработка
           grep -a . temp_all.txt | sort -u > clean_all.txt || true
 
-          # 4. Разделение по 200 строк
+          # 4. Разделение по 200 строк в папку configs
           if [ -s clean_all.txt ]; then
             split -l 200 clean_all.txt vpn_part_
             num=1
             for f in vpn_part_*; do
               if [ -f "$f" ]; then
-                mv "$f" "configs${num}.txt"
+                mv "$f" "configs/f3dorovv.#${num}.txt"
                 num=$((num + 1))
               fi
             done
-            echo "Файлы созданы успешно."
           else
-            echo "Конфиги не найдены."
-            echo "empty" > configs1.txt
+            echo "empty" > "configs/f3dorovv.#1.txt"
           fi
 
-          # 5. Удаление временных файлов
           rm -f temp_all.txt clean_all.txt
 
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@://github.com"
           
-          # Добавляем все файлы configs (без подчеркивания, как они и называются)
-          git add configs*.txt
+          # Добавляем папки в индекс
+          git add configs/ data/
           
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Update configs $(date)"
+            git commit -m "Update configs in folder $(date)"
             git push
           fi
