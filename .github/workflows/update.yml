@@ -1,0 +1,68 @@
+name: Update VPN Configs
+
+on:
+  schedule:
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Download and merge configs
+        run: |
+          # 1. Очистка старых данных
+          rm -f configs*.txt vpn_part_* temp_all.txt clean_all.txt
+          touch temp_all.txt
+
+          # 2. Загрузка из sources.txt
+          if [ -f sources.txt ]; then
+            sed -i 's/\r//g' sources.txt
+            while read -r url || [ -n "$url" ]; do
+              url=$(echo "$url" | xargs)
+              if [[ "$url" == http* ]]; then
+                echo "Загружаю: $url"
+                curl -sL -k -f --connect-timeout 10 "$url" >> temp_all.txt || echo "Пропуск"
+              fi
+            done < sources.txt
+          fi
+
+          # 3. Обработка
+          grep -a . temp_all.txt | sort -u > clean_all.txt || true
+
+          # 4. Разделение по 200 строк
+          if [ -s clean_all.txt ]; then
+            split -l 200 clean_all.txt vpn_part_
+            num=1
+            for f in vpn_part_*; do
+              if [ -f "$f" ]; then
+                mv "$f" "configs${num}.txt"
+                num=$((num + 1))
+              fi
+            done
+            echo "Файлы созданы успешно."
+          else
+            echo "Конфиги не найдены."
+            echo "empty" > configs1.txt
+          fi
+
+          # 5. Удаление временных файлов
+          rm -f temp_all.txt clean_all.txt
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Добавляем все файлы configs (без подчеркивания, как они и называются)
+          git add configs*.txt
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update configs $(date)"
+            git push
+          fi
