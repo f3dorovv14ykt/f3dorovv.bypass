@@ -14,8 +14,7 @@ jobs:
         
       - name: Download and merge configs
         run: |
-          mkdir -p configs data tmp_parts
-          rm -rf tmp_parts/*
+          mkdir -p configs data
           rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
 
           # 1. Сбор ссылок
@@ -24,55 +23,45 @@ jobs:
             sed -i 's/\r//g' "$SOURCE_FILE"
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
-              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 10 --max-time 20 "$url" >> temp_all.txt || true
+              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 10 --max-time 30 "$url" >> temp_all.txt || true
             done < "$SOURCE_FILE"
           fi
 
-          curl -sL -k --connect-timeout 10 --max-time 20 "https://github.io" >> temp_all.txt || true
+          curl -sL -k --connect-timeout 10 --max-time 30 "https://github.io" >> temp_all.txt || true
 
-          # 2. Парсинг vless
+          # 2. Парсинг vless (убираем мусор)
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
           
           TOTAL=$(wc -l < valid_vless.txt)
-          echo "📥 Всего найдено конфигов: $TOTAL. Начинаю проверку в 100 потоков..."
+          echo "📥 Найдено: $TOTAL. Начинаю проверку..."
+          touch final_vless.txt
 
-          # 3. Функция проверки
+          # 3. Функция проверки с прямой записью в файл
           check_vless() {
             line="$1"
-            
-            # Извлекаем часть после @ и до первого / ? #
+            # Извлекаем хост и порт
             target=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
-            
-            # Разделяем хост и порт
-            if [[ "$target" == *":"* ]]; then
-              host="${target%:*}"
-              port="${target##*:}"
-            else
-              host="$target"
-              port=443
-            fi
+            host="${target%:*}"
+            port="${target##*:}"
+            [[ "$host" == "$port" ]] && port=443
 
-            # Увеличили таймаут до 1.5 сек для стабильности
+            # Проверка порта (1.5 сек)
             if nc -z -w 1.5 "$host" "$port" 2>/dev/null; then
-              echo "$line" > "tmp_parts/res_$(echo -n "$line" | md5sum | cut -d' ' -f1).txt"
+              # Записываем сразу в итоговый файл
+              echo "$line" >> final_vless.txt
             fi
           }
           export -f check_vless
 
-          # 4. Запуск (100 потоков — золотая середина)
+          # 4. Запуск (снижаем до 50 потоков для стабильности записи)
           if [ -s valid_vless.txt ]; then
-            xargs -I {} -P 100 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
+            xargs -I {} -P 50 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
-          # 5. Сбор результатов
-          touch final_vless.txt
-          [ "$(ls -A tmp_parts/)" ] && cat tmp_parts/*.txt > final_vless.txt
-          rm -rf tmp_parts
-          
           ALIVE=$(wc -l < final_vless.txt)
-          echo "✅ Проверку прошли: $ALIVE из $TOTAL"
+          echo "✅ Прошли проверку: $ALIVE из $TOTAL"
 
-          # 6. Нарезка
+          # 5. Нарезка на части
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
