@@ -14,65 +14,63 @@ jobs:
         
       - name: Download and merge configs
         run: |
-          # 1. Подготовка папок
+          # 1. Подготовка
           mkdir -p configs data
           rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt valid_vless.txt final_vless.txt
 
-          # 2. Сбор ссылок ИЗ ФАЙЛА data/sources.txt
+          # 2. Сбор ссылок из data/sources.txt
           SOURCE_FILE="data/sources.txt" 
           touch temp_all.txt
           
           if [ -f "$SOURCE_FILE" ]; then
             echo "Читаю источники из $SOURCE_FILE..."
-            # Убираем символы возврата каретки (Windows)
             sed -i 's/\r//g' "$SOURCE_FILE"
             
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
               if [[ "$url" == http* ]]; then
                 echo "Загружаю: $url"
-                curl -sL -k -f --connect-timeout 10 --max-time 30 "$url" >> temp_all.txt || echo "Ошибка загрузки $url"
+                curl -sL -k -f --connect-timeout 15 --max-time 60 "$url" >> temp_all.txt || echo "Ошибка загрузки $url"
               fi
             done < "$SOURCE_FILE"
-          else
-            echo "ОШИБКА: Файл $SOURCE_FILE не найден!"
           fi
 
-          # Добавляем твой сайт как постоянный источник
-          curl -sL -k -f --connect-timeout 10 "https://github.io" >> temp_all.txt || true
+          # Добавляем твой сайт
+          curl -sL -k -f --connect-timeout 15 "https://github.io" >> temp_all.txt || true
 
-          # 3. Достаем vless ссылки (убираем HTML теги и дубли)
+          # 3. Извлечение vless
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
           
           TOTAL=$(wc -l < valid_vless.txt)
-          echo "📥 Всего уникальных конфигов: $TOTAL"
+          echo "📥 Найдено уникальных конфигов: $TOTAL"
 
-          # 4. Функция проверки (надежный вариант)
+          # 4. Функция проверки с увеличенным временем ожидания
           check_vless() {
             line="$1"
-            # Извлекаем хост и порт
-            hp=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
-            host="${hp%:*}"
-            port="${hp##*:}"
+            # Вырезаем host:port
+            target=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
+            host="${target%:*}"
+            port="${target##*:}"
             [[ "$host" == "$port" ]] && port=443
 
-            # Пинг порта (1.5 сек)
-            if nc -z -w 1.5 "$host" "$port" 2>/dev/null; then
+            # --- ИЗМЕНЕНИЕ: Теперь ждем 3 секунды (-w 3) ---
+            if nc -z -w 3 "$host" "$port" 2>/dev/null; then
               echo "$line" >> final_vless.txt
             fi
           }
           export -f check_vless
 
-          # 5. Запуск проверки в 50 потоков
+          # 5. Запуск (30 потоков, чтобы не спамить слишком часто)
           touch final_vless.txt
           if [ "$TOTAL" -gt 0 ]; then
-            xargs -I {} -P 50 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
+            echo "Начинаю глубокую проверку (таймаут 3 сек на сервер)..."
+            xargs -I {} -P 30 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
           ALIVE=$(wc -l < final_vless.txt)
-          echo "✅ Живых конфигов: $ALIVE"
+          echo "✅ Живых конфигов после долгой проверки: $ALIVE"
 
-          # 6. Нарезка по 200 строк
+          # 6. Сохранение
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
@@ -81,7 +79,6 @@ jobs:
               num=$((num + 1))
             done
           else
-            echo "Живых конфигов не найдено, создаю пустой файл."
             echo "empty" > "configs/f3dorovv.#1.txt"
           fi
 
@@ -91,6 +88,6 @@ jobs:
           git config --global user.email "github-actions[bot]@://github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
-            git commit -m "Update configs: $(date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
+            git commit -m "Update: $(date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
