@@ -16,7 +16,7 @@ jobs:
         run: |
           # 1. Создаем папки и чистим старье
           mkdir -p configs data
-          rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt valid_vless.txt
+          rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
           rm -f f3dorovv*.txt 
 
           touch temp_all.txt
@@ -34,25 +34,42 @@ jobs:
               fi
             done < "$SOURCE_FILE"
           else
-            echo "ОШИБКА: Файл $SOURCE_FILE не найден! Убедись, что он в папке data."
-            exit 1
+            echo "Файл $SOURCE_FILE не найден, ищу только на основном сайте."
           fi
 
-          # 3. Удаление дублей и фильтрация битых vless
-          # Оставляем только строки, которые начинаются с vless:// и имеют валидный UUID
-          grep -a . temp_all.txt | sort -u > clean_all.txt || true
-          grep -E '^vless://[0-9a-fA-F-]{36}@' clean_all.txt > valid_vless.txt || true
-          
-          # 💡 Если ваши источники отдают Base64 (а не открытые vless:// ссылки),
-          # раскомментируйте блок ниже, чтобы сначала декодировать их:
-          # if base64 -d temp_all.txt &>/dev/null; then
-          #    base64 -d temp_all.txt > decoded.txt
-          #    grep -E '^vless://[0-9a-fA-F-]{36}@' decoded.txt >> valid_vless.txt || true
-          # fi
+          # 🔥 ДОПОЛНИТЕЛЬНО: Скачиваем конфиги прямо с вашего сайта f3dorovv14ykt.github.io
+          echo "Загружаю конфиги напрямую с f3dorovv14ykt.github.io/"
+          curl -sL -k -f --connect-timeout 10 "https://f3dorovv14ykt.github.io/" >> temp_all.txt || echo "Сайт временно недоступен"
 
-          # 4. Разделение по 200 строк в папку configs
-          if [ -s valid_vless.txt ]; then
-            split -l 200 valid_vless.txt vpn_part_
+          # 3. Парсинг HTML и синтаксический фильтр
+          # Флаг -o вырезает только ссылки vless://, игнорируя HTML-теги <a> и кавычки
+          grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
+
+          # 4. Проверка доступности портов (TCP-пинг)
+          echo "Начинаю проверку доступности серверов..."
+          touch final_vless.txt
+
+          while read -r line; do
+            # Извлекаем хост и порт из vless://UUID@хост:порт...
+            host_port=$(echo "$line" | sed -E 's|vless://[^@]+@([^/?#]+).*|\1|')
+            
+            # Разделяем на хост и порт
+            host=$(echo "$host_port" | cut -d: -f1)
+            port=$(echo "$host_port" | cut -s -d: -f2)
+            [ -z "$port" ] && port=443 # Если порт не указан, ставим 443
+
+            # Быстрая проверка порта (таймаут 2 секунды)
+            if nc -z -w 2 "$host" "$port" 2>/dev/null; then
+              echo "✅ РАБОТАЕТ: $host:$port"
+              echo "$line" >> final_vless.txt
+            else
+              echo "❌ НЕ РАБОТАЕТ: $host:$port (удален)"
+            fi
+          done < valid_vless.txt
+
+          # 5. Разделение по 200 строк в папку configs
+          if [ -s final_vless.txt ]; then
+            split -l 200 final_vless.txt vpn_part_
             num=1
             for f in vpn_part_*; do
               if [ -f "$f" ]; then
@@ -64,7 +81,7 @@ jobs:
             echo "empty" > "configs/f3dorovv.#1.txt"
           fi
 
-          rm -f temp_all.txt clean_all.txt valid_vless.txt
+          rm -f temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
 
       - name: Commit and Push
         run: |
