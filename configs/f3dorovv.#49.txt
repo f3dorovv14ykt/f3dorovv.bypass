@@ -1,0 +1,9 @@
+vless://ff9d054f-af4c-4d64-b205-26ecbec5834f@185.143.233.5:8080?path=%2F&security=&encryption=none&host=edge1.vnvgold.com&type=ws#%F0%9F%8C%90%20WS-None%20%7C%20%40filembad
+vless://ffa37367-6313-4cc5-86bd-3d8dc879c24e@snapp.ir:80?encryption=none&security=none&type=ws&host=ar.liarashop.ir&path=%2F#%F0%9F%8C%90%20WS-None%20%7C%20%40Tweety_Proxy
+vless://ffa42f42-57e8-4c8b-af3a-6a5565f37c79@ww.iwantmoney.ir:8880?path=%2F&security=none&encryption=none&type=ws#%F0%9F%8C%90%20WS-None%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?path=%2F&security=tls&encryption=none&host=edgetunn-cfm.pages.dev&type=ws&sni=edgetunn-cfm.pages.dev#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?path=%2F&security=tls&encryption=none&insecure=0&host=edgetunn-cfm.pages.dev&fp=chrome&type=ws&allowInsecure=0&sni=edgetunn-cfm.pages.dev#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?path=%2F&security=tls&encryption=none&insecure=0&host=edgetunn-cfm.pages.dev&type=ws&allowInsecure=0&sni=edgetunn-cfm.pages.dev#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?path=%2F&security=tls&encryption=none&insecure=0&host=edgetunn-cfm.pages.dev&type=ws&allowInsecure=0&sni=edgetunn-cfm.pages.dev@kanfing_proxyy#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?security=tls&allowInsecure=0&encryption=none&type=ws&host=edgetunn-cfm.pages.dev&path=/&sni=edgetunn-cfm.pages.dev&fp=chrome#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff78d8b-481c-4c65-81cd-5a14912db898@t.seedkhan.site:8443?path=%2Fws8443&security=tls&alpn=h2%2Chttp%2F1.1&encryption=none&insecure=1&host=tl.seedkhan.site&fp=chrome&type=ws&allowInsecure=1&sni=tl.seedkhan.site#%5BOpenRay%5D%20%F0%9F%87%BA%F0%9F%87%B8%20US-14979
