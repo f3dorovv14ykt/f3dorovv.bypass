@@ -26,4 +26,4 @@ jobs:
         pip install requests pysocks
 
     - name: Run bypass script
-      run: python VLESS_SOURCES.py # Здесь должно быть имя вашего файла Python
+      run: python core/VLESS_SOURCES.py # Здесь должно быть имя вашего файла Python
