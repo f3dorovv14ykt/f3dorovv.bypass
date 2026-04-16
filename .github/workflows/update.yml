@@ -14,85 +14,78 @@ jobs:
         
       - name: Download and merge configs
         run: |
-          # 1. Создаем папки и чистим старье
-          mkdir -p configs data
+          mkdir -p configs data tmp_parts
+          rm -rf tmp_parts/*
           rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
-          rm -f f3dorovv*.txt 
 
-          touch temp_all.txt
-
-          # 2. Читаем URL из sources.txt и скачиваем контент
+          # 1. Быстрый сбор всех ссылок
           SOURCE_FILE="data/sources.txt" 
-          
           if [ -f "$SOURCE_FILE" ]; then
             sed -i 's/\r//g' "$SOURCE_FILE"
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
-              if [[ "$url" == http* ]]; then
-                echo "Загружаю из источника: $url"
-                curl -sL -k -f --connect-timeout 10 "$url" >> temp_all.txt || echo "Пропуск битого URL"
-              fi
+              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 5 --max-time 10 "$url" >> temp_all.txt || true
             done < "$SOURCE_FILE"
-          else
-            echo "Файл $SOURCE_FILE не найден, ищу только на основном сайте."
           fi
 
-          # 🔥 ДОПОЛНИТЕЛЬНО: Скачиваем конфиги прямо с вашего сайта f3dorovv14ykt.github.io
-          echo "Загружаю конфиги напрямую с f3dorovv14ykt.github.io/"
-          curl -sL -k -f --connect-timeout 10 "https://f3dorovv14ykt.github.io/" >> temp_all.txt || echo "Сайт временно недоступен"
+          curl -sL -k --connect-timeout 5 --max-time 10 "https://github.io" >> temp_all.txt || true
 
-          # 3. Парсинг HTML и синтаксический фильтр
-          # Флаг -o вырезает только ссылки vless://, игнорируя HTML-теги <a> и кавычки
+          # 2. Очистка и фильтрация синтаксиса
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
+          
+          TOTAL=$(wc -l < valid_vless.txt)
+          echo "📥 Всего найдено конфигов: $TOTAL. Начинаю проверку в 150 потоков..."
 
-          # 4. Проверка доступности портов (TCP-пинг)
-          echo "Начинаю проверку доступности серверов..."
-          touch final_vless.txt
+          # 3. Агрессивная проверка порта
+          check_vless() {
+            line="$1"
+            # Извлекаем host:port
+            hp=$(echo "$line" | sed -E 's|vless://[^@]+@([^/?#]+).*|\1|')
+            host="${hp%:*}"
+            port="${hp##*:}"
+            [[ "$host" == "$port" ]] && port=443 # если порта нет в строке
 
-          while read -r line; do
-            # Извлекаем хост и порт из vless://UUID@хост:порт...
-            host_port=$(echo "$line" | sed -E 's|vless://[^@]+@([^/?#]+).*|\1|')
-            
-            # Разделяем на хост и порт
-            host=$(echo "$host_port" | cut -d: -f1)
-            port=$(echo "$host_port" | cut -s -d: -f2)
-            [ -z "$port" ] && port=443 # Если порт не указан, ставим 443
-
-            # Быстрая проверка порта (таймаут 2 секунды)
-            if nc -z -w 2 "$host" "$port" 2>/dev/null; then
-              echo "✅ РАБОТАЕТ: $host:$port"
-              echo "$line" >> final_vless.txt
-            else
-              echo "❌ НЕ РАБОТАЕТ: $host:$port (удален)"
+            # Таймаут 0.3 сек, тихий режим
+            if nc -z -w 0.3 "$host" "$port" 2>/dev/null; then
+              # Пишем во временный файл (минимум операций)
+              echo "$line" > "tmp_parts/$(echo -n "$line" | md5sum | cut -d' ' -f1).txt"
             fi
-          done < valid_vless.txt
+          }
+          export -f check_vless
 
-          # 5. Разделение по 200 строк в папку configs
+          # Запуск массовой проверки (xargs -P 150)
+          if [ -s valid_vless.txt ]; then
+            xargs -I {} -P 150 bash -c 'check_vless "{}"' < valid_vless.txt
+          fi
+
+          # 4. Сборка живых конфигов
+          touch final_vless.txt
+          if [ "$(ls -A tmp_parts/)" ]; then
+            cat tmp_parts/*.txt > final_vless.txt
+          fi
+          rm -rf tmp_parts
+          
+          ALIVE=$(wc -l < final_vless.txt)
+          echo "✅ Проверку прошли: $ALIVE из $TOTAL"
+
+          # 5. Разбивка на файлы по 200 строк
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
             for f in vpn_part_*; do
-              if [ -f "$f" ]; then
-                mv "$f" "configs/f3dorovv.#${num}.txt"
-                num=$((num + 1))
-              fi
+              mv "$f" "configs/f3dorovv.#${num}.txt"
+              num=$((num + 1))
             done
           else
             echo "empty" > "configs/f3dorovv.#1.txt"
           fi
 
-          rm -f temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
-
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
-          
           git add configs/ data/
-          
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update configs in folder $(date)"
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update: $(date +'%D %T') [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
