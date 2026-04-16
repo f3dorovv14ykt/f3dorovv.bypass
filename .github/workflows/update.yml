@@ -14,54 +14,65 @@ jobs:
         
       - name: Download and merge configs
         run: |
+          # 1. Подготовка папок
           mkdir -p configs data
-          rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt clean_all.txt valid_vless.txt final_vless.txt
+          rm -f configs/f3dorovv*.txt vpn_part_* temp_all.txt valid_vless.txt final_vless.txt
 
-          # 1. Сбор ссылок
+          # 2. Сбор ссылок ИЗ ФАЙЛА data/sources.txt
           SOURCE_FILE="data/sources.txt" 
+          touch temp_all.txt
+          
           if [ -f "$SOURCE_FILE" ]; then
+            echo "Читаю источники из $SOURCE_FILE..."
+            # Убираем символы возврата каретки (Windows)
             sed -i 's/\r//g' "$SOURCE_FILE"
+            
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
-              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 10 --max-time 30 "$url" >> temp_all.txt || true
+              if [[ "$url" == http* ]]; then
+                echo "Загружаю: $url"
+                curl -sL -k -f --connect-timeout 10 --max-time 30 "$url" >> temp_all.txt || echo "Ошибка загрузки $url"
+              fi
             done < "$SOURCE_FILE"
+          else
+            echo "ОШИБКА: Файл $SOURCE_FILE не найден!"
           fi
 
-          curl -sL -k --connect-timeout 10 --max-time 30 "https://github.io" >> temp_all.txt || true
+          # Добавляем твой сайт как постоянный источник
+          curl -sL -k -f --connect-timeout 10 "https://github.io" >> temp_all.txt || true
 
-          # 2. Парсинг vless (убираем мусор)
+          # 3. Достаем vless ссылки (убираем HTML теги и дубли)
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
           
           TOTAL=$(wc -l < valid_vless.txt)
-          echo "📥 Найдено: $TOTAL. Начинаю проверку..."
-          touch final_vless.txt
+          echo "📥 Всего уникальных конфигов: $TOTAL"
 
-          # 3. Функция проверки с прямой записью в файл
+          # 4. Функция проверки (надежный вариант)
           check_vless() {
             line="$1"
             # Извлекаем хост и порт
-            target=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
-            host="${target%:*}"
-            port="${target##*:}"
+            hp=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
+            host="${hp%:*}"
+            port="${hp##*:}"
             [[ "$host" == "$port" ]] && port=443
 
-            # Проверка порта (1.5 сек)
+            # Пинг порта (1.5 сек)
             if nc -z -w 1.5 "$host" "$port" 2>/dev/null; then
-              # Записываем сразу в итоговый файл
               echo "$line" >> final_vless.txt
             fi
           }
           export -f check_vless
 
-          # 4. Запуск (снижаем до 50 потоков для стабильности записи)
-          if [ -s valid_vless.txt ]; then
+          # 5. Запуск проверки в 50 потоков
+          touch final_vless.txt
+          if [ "$TOTAL" -gt 0 ]; then
             xargs -I {} -P 50 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
           ALIVE=$(wc -l < final_vless.txt)
-          echo "✅ Прошли проверку: $ALIVE из $TOTAL"
+          echo "✅ Живых конфигов: $ALIVE"
 
-          # 5. Нарезка на части
+          # 6. Нарезка по 200 строк
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
@@ -70,6 +81,7 @@ jobs:
               num=$((num + 1))
             done
           else
+            echo "Живых конфигов не найдено, создаю пустой файл."
             echo "empty" > "configs/f3dorovv.#1.txt"
           fi
 
@@ -79,6 +91,6 @@ jobs:
           git config --global user.email "github-actions[bot]@://github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
-            git commit -m "Update: $(date +'%D %T') [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
+            git commit -m "Update configs: $(date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
