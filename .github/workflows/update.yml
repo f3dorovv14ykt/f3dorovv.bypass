@@ -24,56 +24,55 @@ jobs:
             sed -i 's/\r//g' "$SOURCE_FILE"
             while read -r url || [ -n "$url" ]; do
               url=$(echo "$url" | xargs)
-              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 5 --max-time 15 "$url" >> temp_all.txt || true
+              [[ "$url" == http* ]] && curl -sL -k --connect-timeout 10 --max-time 20 "$url" >> temp_all.txt || true
             done < "$SOURCE_FILE"
           fi
 
-          curl -sL -k --connect-timeout 5 --max-time 15 "https://github.io" >> temp_all.txt || true
+          curl -sL -k --connect-timeout 10 --max-time 20 "https://github.io" >> temp_all.txt || true
 
-          # 2. Парсинг (строгий фильтр vless)
+          # 2. Парсинг vless
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
           
           TOTAL=$(wc -l < valid_vless.txt)
-          echo "📥 Всего найдено конфигов: $TOTAL. Начинаю безопасную проверку в 150 потоков..."
+          echo "📥 Всего найдено конфигов: $TOTAL. Начинаю проверку в 100 потоков..."
 
-          # 3. Безопасная функция проверки
+          # 3. Функция проверки
           check_vless() {
-            # Берем строку из аргумента напрямую, без лишних кавычек
             line="$1"
             
-            # Извлекаем хост и порт через bash-инструменты (без sed, чтобы не сломать спецсимволы)
-            hp_part="${line#*@}"
-            hp_part="${hp_part%%[/??#]*}"
-            host="${hp_part%:*}"
-            port="${hp_part##*:}"
-            [[ "$host" == "$port" ]] && port=443
+            # Извлекаем часть после @ и до первого / ? #
+            target=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
+            
+            # Разделяем хост и порт
+            if [[ "$target" == *":"* ]]; then
+              host="${target%:*}"
+              port="${target##*:}"
+            else
+              host="$target"
+              port=443
+            fi
 
-            # Пинг порта (0.5 сек)
-            if nc -z -w 0.5 "$host" "$port" 2>/dev/null; then
-              # Вместо md5sum используем простой инкремент для скорости, если нужно
-              # Но md5 надежнее для уникальности файлов
-              echo "$line" > "tmp_parts/$(echo -n "$line" | md5sum | cut -d' ' -f1).txt"
+            # Увеличили таймаут до 1.5 сек для стабильности
+            if nc -z -w 1.5 "$host" "$port" 2>/dev/null; then
+              echo "$line" > "tmp_parts/res_$(echo -n "$line" | md5sum | cut -d' ' -f1).txt"
             fi
           }
           export -f check_vless
 
-          # 4. Запуск через xargs с защитой от спецсимволов (флаг -0 или прямая передача)
+          # 4. Запуск (100 потоков — золотая середина)
           if [ -s valid_vless.txt ]; then
-            # Используем bash -c 'check_vless "$1"' -- , чтобы символы в {} не интерпретировались как код
-            xargs -I {} -P 150 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
+            xargs -I {} -P 100 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
           # 5. Сбор результатов
           touch final_vless.txt
-          if [ "$(ls -A tmp_parts/)" ]; then
-            cat tmp_parts/*.txt > final_vless.txt
-          fi
+          [ "$(ls -A tmp_parts/)" ] && cat tmp_parts/*.txt > final_vless.txt
           rm -rf tmp_parts
           
           ALIVE=$(wc -l < final_vless.txt)
           echo "✅ Проверку прошли: $ALIVE из $TOTAL"
 
-          # 6. Нарезка по 200 строк
+          # 6. Нарезка
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
@@ -91,6 +90,6 @@ jobs:
           git config --global user.email "github-actions[bot]@://github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
-            git commit -m "Auto-update: $(date +'%D %T') [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
+            git commit -m "Update: $(date +'%D %T') [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
