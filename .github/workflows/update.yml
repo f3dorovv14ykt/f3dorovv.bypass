@@ -35,49 +35,55 @@ jobs:
             done < "$SOURCE_FILE"
           fi
 
-          # Добавляем твой сайт
-          curl -sL -k -f --connect-timeout 15 "https://github.io" >> temp_all.txt || true
-
           # 3. Извлечение vless
           grep -a -oE 'vless://[0-9a-fA-F-]{36}@[^"'\'' <]+' temp_all.txt | sort -u > valid_vless.txt || true
           
           TOTAL=$(wc -l < valid_vless.txt)
           echo "📥 Найдено уникальных конфигов: $TOTAL"
 
-          # 4. Функция проверки с увеличенным временем ожидания
+          # 4. Функция проверки
           check_vless() {
             line="$1"
-            # Вырезаем host:port
             target=$(echo "$line" | cut -d'@' -f2 | cut -d'/' -f1 | cut -d'?' -f1 | cut -d'#' -f1)
             host="${target%:*}"
             port="${target##*:}"
             [[ "$host" == "$port" ]] && port=443
 
-            # --- ИЗМЕНЕНИЕ: Теперь ждем 3 секунды (-w 3) ---
             if nc -z -w 3 "$host" "$port" 2>/dev/null; then
               echo "$line" >> final_vless.txt
             fi
           }
           export -f check_vless
 
-          # 5. Запуск (30 потоков, чтобы не спамить слишком часто)
+          # 5. Запуск проверки (30 потоков)
           touch final_vless.txt
           if [ "$TOTAL" -gt 0 ]; then
-            echo "Начинаю глубокую проверку (таймаут 3 сек на сервер)..."
+            echo "Начинаю проверку (таймаут 3 сек)..."
             xargs -I {} -P 30 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
           ALIVE=$(wc -l < final_vless.txt)
-          echo "✅ Живых конфигов после долгой проверки: $ALIVE"
+          echo "✅ Живых конфигов: $ALIVE"
 
-          # 6. Сохранение
+          # 6. Сохранение с данными ПОДПИСКИ
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
+            
+            # Настройки подписки: 1024 ГБ трафика и дата до 2027 года
+            USER_INFO="upload=0; download=0; total=1099511627776; expire=1815859200"
+            YAKUTSK_TIME=$(TZ="Asia/Yakutsk" date +"%Y-%m-%d / %H:%M (Yakutsk)")
+
             for f in vpn_part_*; do
-              mv "$f" "configs/f3dorovv.#${num}.txt"
+              echo "# profile-title: f3dorovv.Main" > header.txt
+              echo "# subscription-userinfo: $USER_INFO" >> header.txt
+              echo "# profile-update-interval: 5" >> header.txt
+              echo "# Date/Time: $YAKUTSK_TIME" >> header.txt
+              
+              cat header.txt "$f" > "configs/f3dorovv.#${num}.txt"
               num=$((num + 1))
             done
+            rm header.txt
           else
             echo "empty" > "configs/f3dorovv.#1.txt"
           fi
@@ -85,9 +91,9 @@ jobs:
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
-            git commit -m "Update: $(date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
+            git commit -m "Update Main: $(TZ="Asia/Yakutsk" date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
