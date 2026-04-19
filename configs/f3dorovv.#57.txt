@@ -1,0 +1,9 @@
+# profile-title: f3dorovv.Main
+# subscription-userinfo: upload=0; download=0; total=1099511627776; expire=1815859200
+# profile-update-interval: 5
+# Date/Time: 2026-04-20 / 04:59 (Yakutsk)
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?path=%2F&security=tls&encryption=none&insecure=0&host=edgetunn-cfm.pages.dev&type=ws&allowInsecure=0&sni=edgetunn-cfm.pages.dev@kanfing_proxyy#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fff03d01-86a7-4695-80d9-95f9b16a5f5c@sourceforge.net:443?security=tls&allowInsecure=0&encryption=none&type=ws&host=edgetunn-cfm.pages.dev&path=/&sni=edgetunn-cfm.pages.dev&fp=chrome#%F0%9F%8C%90%20WS-TLS%20%7C%20%40filembad
+vless://fffb9770-3bb4-11f1-8d78-bc24110a77a6@yofree.top:443?type=tcp&security=reality&pbk=AWyicEDYi7KB3qzo8OEvEd1HK0gZhCHAENBd_buyhQk&fp=chrome&sni=yofree.top&sid=fa2f&spx=%2F&flow=xtls-rprx-vision#%5BOpenRay%5D%20%F0%9F%87%B3%F0%9F%87%B1%20NL-3842
+vless://fe871fee-4786-4c0b-ba92-a63e899c1ce5@95.85.224.28:443?flow=xtls-rprx-vision&encryption=none&type=tcp&security=reality&fp=chrome&sni=m.vkvideo.cs7777.vk.ru&pbk=dfpjZXFTymcxlvi1QnQwuja8AVmTBtHiKMOecY3_l2E#%F0%9F%87%AA%F0%9F%87%AA%20Estonia%20%E2%80%94%20%23159
+vless://fffb9770-3bb4-11f1-8d78-bc24110a77a6@yofree.top:443?type=tcp&security=reality&pbk=AWyicEDYi7KB3qzo8OEvEd1HK0gZhCHAENBd_buyhQk&fp=chrome&sni=yofree.top&sid=fa2f&spx=%2F&flow=xtls-rprx-vision#%F0%9F%87%B3%F0%9F%87%B1%20TCP-Reality%20%7C%20%40v2ray_configs_pool
