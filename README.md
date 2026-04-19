@@ -37,15 +37,15 @@
 ## 📡 Прямые ссылки на подписки (Subscriptions)
 
 > [!TIP]
-> Эти ссылки — "живые". Просто скопируйте их и вставьте в **v2rayNG**, **Nekobox** или **Streisand**. Система сама покажет вам лимит **1024 ГБ** и статус соединения.
+> Эти ссылки — "живые". Просто скопируйте их и вставьте в **Hiddify**, **Nekobox** или **v2rayNG**. Система сама покажет вам лимит **1024 ГБ** и статус соединения.
 
 ### 💎 Актуальные узлы
 
 
 | Тип подписки | Прямая ссылка (RAW) | Назначение |
 | :--- | :--- | :--- |
-| **🏠 f3dorovv.Main** | `https://githubusercontent.com` | Для дома, ПК и стабильного Wi-Fi |
-| **📱 f3dorovv.Mobile** | `https://githubusercontent.com` | Оптимизировано под мобильный трафик |
+| **🏠 f3dorovv.Main** | `https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%231.txt` | Для дома, ПК и стабильного Wi-Fi |
+| **📱 f3dorovv.Mobile** | `https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/mobile_f3dorovv.%2310.txt` | Оптимизировано под мобильный трафик |
 
 ---
 
@@ -78,6 +78,6 @@
 
 ---
 
-##🙏 Спасибо за внимание!
+## 🙏 Спасибо за внимание!
 Этот проект — мой личный вызов и вклад в свободный интернет. Если тебе помогли мои труды, нажми Star ⭐ на репозитории. Это лучшая поддержка для разработчика из Якутии!
 Built with 🔥 and ❄️ in Yakutsk.
