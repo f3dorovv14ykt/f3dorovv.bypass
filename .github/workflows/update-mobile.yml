@@ -2,7 +2,7 @@ name: Update Mobile VPN Configs
 
 on:
   schedule:
-    - cron: '0 */3 * * *' # Будет запускаться так же каждые 3 часа
+    - cron: '0 */3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -16,10 +16,9 @@ jobs:
         run: |
           # 1. Подготовка
           mkdir -p configs data
-          # Удаляем старые мобильные конфиги, чтобы создать свежие
           rm -f configs/mobile_f3dorovv*.txt vpn_part_* temp_all.txt valid_vless.txt final_vless.txt
 
-          # 2. Сбор ссылок из data/sources_mobile.txt (ИЗМЕНЕНО)
+          # 2. Сбор ссылок из data/sources_mobile.txt
           SOURCE_FILE="data/sources_mobile.txt" 
           touch temp_all.txt
           
@@ -56,23 +55,33 @@ jobs:
           }
           export -f check_vless
 
-          # 5. Запуск проверки
+          # 5. Запуск проверки (30 потоков)
           touch final_vless.txt
           if [ "$TOTAL" -gt 0 ]; then
+            echo "Начинаю проверку..."
             xargs -I {} -P 30 bash -c 'check_vless "$@"' _ "{}" < valid_vless.txt
           fi
 
           ALIVE=$(wc -l < final_vless.txt)
           echo "✅ Живых мобильных конфигов: $ALIVE"
 
-          # 6. Сохранение (ИЗМЕНЕНЫ названия файлов на mobile_...)
+          # 6. Сохранение с заголовком f3dorovv.Mobile
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
+            
+            # Получаем текущее время Якутска
+            YAKUTSK_TIME=$(TZ="Asia/Yakutsk" date +"%Y-%m-%d / %H:%M (Yakutsk)")
+            
             for f in vpn_part_*; do
-              mv "$f" "configs/mobile_f3dorovv.#${num}.txt"
+              echo "# profile-title: f3dorovv.Mobile" > header.txt
+              echo "# profile-update-interval: 5" >> header.txt
+              echo "# Date/Time: $YAKUTSK_TIME" >> header.txt
+              
+              cat header.txt "$f" > "configs/mobile_f3dorovv.#${num}.txt"
               num=$((num + 1))
             done
+            rm header.txt
           else
             echo "empty" > "configs/mobile_f3dorovv.#1.txt"
           fi
@@ -80,9 +89,9 @@ jobs:
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@://github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
-            git commit -m "Update Mobile: $(date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
+            git commit -m "Update Mobile: $(TZ="Asia/Yakutsk" date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
             git push
           fi
