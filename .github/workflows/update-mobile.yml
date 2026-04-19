@@ -65,16 +65,18 @@ jobs:
           ALIVE=$(wc -l < final_vless.txt)
           echo "✅ Живых мобильных конфигов: $ALIVE"
 
-          # 6. Сохранение с заголовком f3dorovv.Mobile
+          # 6. Сохранение с данными ПОДПИСКИ
           if [ -s final_vless.txt ]; then
             split -l 200 final_vless.txt vpn_part_
             num=1
             
-            # Получаем текущее время Якутска
+            # Данные подписки: 1024 ГБ и срок до 2027 года
+            USER_INFO="upload=0; download=0; total=1099511627776; expire=1815859200"
             YAKUTSK_TIME=$(TZ="Asia/Yakutsk" date +"%Y-%m-%d / %H:%M (Yakutsk)")
             
             for f in vpn_part_*; do
               echo "# profile-title: f3dorovv.Mobile" > header.txt
+              echo "# subscription-userinfo: $USER_INFO" >> header.txt
               echo "# profile-update-interval: 5" >> header.txt
               echo "# Date/Time: $YAKUTSK_TIME" >> header.txt
               
@@ -89,7 +91,7 @@ jobs:
       - name: Commit and Push
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add configs/ data/
           if ! git diff --staged --quiet; then
             git commit -m "Update Mobile: $(TZ="Asia/Yakutsk" date) [Alive: $(wc -l < final_vless.txt 2>/dev/null || echo 0)]"
