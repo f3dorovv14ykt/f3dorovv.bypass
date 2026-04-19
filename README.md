@@ -9,9 +9,8 @@ _____________________________________
 Конфиги обновляются **каждые 3 часа** с помощью GitHub Actions, поэтому все ссылки всегда актуальны.
 
 
-
-- **[defaultf3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.DefaultVPN)** <--- Обычный Впн
-- **[Mobilef3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.ALPHARELISE.allRussiaAutoUpdate/refs/heads/main/ALL/f3dorovv.Mobile)** <--- Обход Белых Списков
+- **[Mobilef3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/mobile_f3dorovv.%231.txt)** <--- Обход Белых Списков
+- **[Mobilef3dorovv](https://raw.githubusercontent.com/f3dorovv14ykt/f3dorovv.bypass/refs/heads/main/configs/f3dorovv.%2315.txt)** <--- Обход Белых Списков N2
 
 
 
